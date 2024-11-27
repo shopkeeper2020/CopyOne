@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "CopyOne",
+  "version": "1.0",
+  "description": "A simple sidebar extension.",
+  "permissions": ["sidePanel", "clipboardRead", "storage"],
+  "host_permissions": [
+    "https://dashscope.aliyuncs.com/*",
+    "https://api.groq.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon.png",
+      "48": "icons/icon.png",
+      "128": "icons/icon.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidebar.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "commands": {
+    "toggle_sidebar": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
+      },
+      "description": "Toggle sidebar visibility"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

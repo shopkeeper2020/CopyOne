@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>设置</title>
+  <style>
+    body {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    h2 {
+      margin: 24px 0 16px;
+      color: #444;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .api-link {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #666;
+      text-decoration: none;
+    }
+
+    .api-link:hover {
+      color: #1976d2;
+      text-decoration: underline;
+    }
+
+    .button-group {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    #saveBtn {
+      background-color: #1976d2;
+      color: white;
+    }
+
+    #saveBtn:hover {
+      background-color: #1565c0;
+    }
+
+    .status {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      animation: fadeInOut 3s ease;
+    }
+
+    .success {
+      background-color: rgba(46, 125, 50, 0.9);
+      color: white;
+    }
+
+    .error {
+      background-color: rgba(198, 40, 40, 0.9);
+      color: white;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .section {
+      margin-bottom: 32px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .model-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .model-input-group select,
+    .model-input-group input {
+      width: 100%;
+    }
+
+    .model-input-group input {
+      display: none; /* 默认隐藏，选择自定义时显示 */
+    }
+
+    .api-key-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .api-key-input input {
+      flex: 1;
+    }
+
+    .toggle-visibility {
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-visibility:hover {
+      opacity: 1;
+    }
+
+    .toggle-visibility img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .function-settings {
+      margin: 16px 0;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+
+    .function-settings h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      color: #444;
+    }
+
+    #imageAdvancedSettings,
+    #textAdvancedSettings {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+
+    .toggle-visibility-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      width: 32px;
+      position: relative;
+    }
+
+    .toggle-visibility-btn:hover {
+      opacity: 1;
+    }
+
+    .toggle-visibility-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      z-index: 1000;
+    }
+
+    .toggle-visibility-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .toggle-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* 添加滑动开关样式 */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .switch-container input[type="checkbox"] {
+      height: 0;
+      width: 0;
+      visibility: hidden;
+      position: absolute;
+    }
+
+    .switch-container label {
+      cursor: pointer;
+      text-indent: -9999px;
+      width: 36px;
+      height: 20px;
+      background: #ddd;
+      display: block;
+      border-radius: 100px;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .switch-container label:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .switch-container input:checked + label {
+      background: #1976d2;
+    }
+
+    .switch-container input:checked + label:after {
+      transform: translateX(16px);
+    }
+
+    .switch-container .switch-text {
+      font-size: 14px;
+      color: #555;
+      user-select: none;
+    }
+
+    /* 修改已有的文本框样式 */
+    .prompt-input,
+    #imagePrompt,
+    #textPrompt {
+      width: 100%;
+      min-height: 80px;
+      max-height: 200px;
+      height: auto;
+      padding: 8px;
+      margin-bottom: 4px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      box-sizing: border-box;
+      position: relative;
+      overflow-y: hidden;
+    }
+
+    /* 添加放大按钮容器 */
+    .textarea-container {
+      position: relative;
+      width: 100%;
+    }
+
+    /* 放大按钮样式 */
+    .expand-btn {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .expand-btn:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .expand-btn::before {
+      content: '⤢';
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* 放大模式的遮罩层 */
+    .textarea-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    /* 放大模式的文本框容器 */
+    .textarea-modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 放大模式的文本框 */
+    .textarea-modal textarea {
+      flex: 1;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    /* 放大模式的按钮容器 */
+    .textarea-modal-buttons {
+      height: 40px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0;
+    }
+
+    /* 放大模式的按钮 */
+    .textarea-modal button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .textarea-modal .save-btn {
+      background: #1976d2;
+      color: white;
+    }
+
+    .textarea-modal .cancel-btn {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    /* 当模态框显示时隐藏滚动条 */
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    /* 修改模态框样式 */
+    .modal-header {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* 调整文本框样式以适应新的布局 */
+    .textarea-modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .textarea-modal textarea {
+      flex: 1;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    /* 标题区域样式 */
+    .title-section {
+      padding: 20px 0;
+      margin-bottom: 20px;
+    }
+
+    .title-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .title-content h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .title-divider {
+      height: 1px;
+      background: #eee;
+      margin: 0 -20px 20px;
+    }
+
+    /* 调整原有的 h1 样式 */
+    .container > h1:not(.title-content h1) {
+      display: none;  /* 隐藏原有的标题 */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 添加标题区域 -->
+    <div class="title-section">
+      <div class="title-content">
+        <img src="icons/icon.png" alt="CopyOne" class="title-icon">
+        <h1>CopyOne</h1>
+      </div>
+    </div>
+
+    <!-- 添加分隔线 -->
+    <div class="title-divider"></div>
+
+    <!-- 通用设置区 -->
+    <div class="section">
+      <h2>通用设置</h2>
+      <div class="form-group">
+        <label for="historyLimit">历史记录限制（条）</label>
+        <input type="number" id="historyLimit" min="10" max="1000" value="50">
+      </div>
+      <div class="form-group">
+        <label for="shortcut">快捷键</label>
+        <input type="text" id="shortcut" value="Ctrl+Z" disabled>
+        <a href="chrome://extensions/shortcuts" 
+           class="api-link" 
+           id="shortcutLink">可在 chrome://extensions/shortcuts 中修改</a>
+      </div>
+      
+      <!-- API Keys -->
+      <div class="form-group">
+        <label for="qwenApiKey">通义千问 API Key</label>
+        <div class="api-key-input">
+          <input type="password" id="qwenApiKey" placeholder="输入通义千问 API Key">
+          <button class="toggle-visibility-btn" data-for="qwenApiKey" data-tooltip="显示/隐藏">
+            <img src="icons/显示.png" alt="显示/隐藏" class="toggle-icon">
+          </button>
+        </div>
+        <a href="https://bailian.console.aliyun.com/?apiKey=1#/api-key" 
+           target="_blank" 
+           class="api-link">从阿里云百炼获取 API Key</a>
+      </div>
+
+      <div class="form-group">
+        <label for="groqApiKey">Groq API Key</label>
+        <div class="api-key-input">
+          <input type="password" id="groqApiKey" placeholder="输入 Groq API Key">
+          <button class="toggle-visibility-btn" data-for="groqApiKey" data-tooltip="显示/隐藏">
+            <img src="icons/显示.png" alt="显示/隐藏" class="toggle-icon">
+          </button>
+        </div>
+        <a href="https://console.groq.com/" 
+           target="_blank" 
+           class="api-link">从 GroqCloud 获取 API Key</a>
+      </div>
+
+      <div class="form-group">
+        <label for="geminiApiKey">Gemini API Key</label>
+        <div class="api-key-input">
+          <input type="password" id="geminiApiKey" placeholder="输入 Gemini API Key">
+          <button class="toggle-visibility-btn" data-for="geminiApiKey" data-tooltip="显示/隐藏">
+            <img src="icons/显示.png" alt="显示/隐藏" class="toggle-icon">
+          </button>
+        </div>
+        <a href="https://ai.google.dev/" 
+           target="_blank" 
+           class="api-link">从 Google 获取 API Key</a>
+      </div>
+
+      <!-- 添加聊天框背景设置 -->
+      <div class="form-group">
+        <div class="switch-container">
+          <input type="checkbox" id="chatBackground">
+          <label for="chatBackground">Toggle</label>
+          <span class="switch-text">聊天框背景</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图片设置区 -->
+    <div class="section">
+      <h2>图片功能设置</h2>
+      <div class="form-group">
+        <div class="switch-container">
+          <input type="checkbox" id="imageAdvancedMode">
+          <label for="imageAdvancedMode">Toggle</label>
+          <span class="switch-text">启用高级模式（为每个功能单独设置模型）</span>
+        </div>
+      </div>
+
+      <!-- 基础模式设置 -->
+      <div id="imageBasicSettings">
+        <div class="form-group">
+          <label for="imageVendor">图片处理厂商</label>
+          <select id="imageVendor">
+            <option value="qwen">通义千问</option>
+            <option value="groq">groq</option>
+            <option value="gemini">Gemini</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="imageModel">图片处理模型</label>
+          <div class="model-input-group">
+            <select id="imageModelSelect">
+              <option value="custom">自定义输入</option>
+            </select>
+            <input type="text" id="imageModelInput" placeholder="输入模型名称">
+            <a href="#" class="api-link model-list-link">查看模型列表</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 高级模式设置 -->
+      <div id="imageAdvancedSettings" style="display: none;">
+        <!-- 提取文本功能设置 -->
+        <div class="function-settings">
+          <h3>提取文本</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="extract">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="extract">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="extract" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="extract" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图片译中功能设置 -->
+        <div class="function-settings">
+          <h3>图片译中</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="img_translateCh">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="img_translateCh">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="img_translateCh" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="img_translateCh" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图片译英功能设置 -->
+        <div class="function-settings">
+          <h3>图片译英</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="img_translateEn">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="img_translateEn">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="img_translateEn" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="img_translateEn" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图片自定义功能设置 -->
+        <div class="function-settings">
+          <h3>图片自定义</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="img_custom">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="img_custom">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="img_custom" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="img_custom" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="imagePrompt">自定义图片提示词</label>
+        <textarea id="imagePrompt" placeholder="输入处理图片时的自定义提示词"></textarea>
+      </div>
+    </div>
+
+    <!-- 文本设置区 -->
+    <div class="section">
+      <h2>文本功能设置</h2>
+      <div class="form-group">
+        <div class="switch-container">
+          <input type="checkbox" id="textAdvancedMode">
+          <label for="textAdvancedMode">Toggle</label>
+          <span class="switch-text">启用高级模式（为每个功能单独设置模型）</span>
+        </div>
+      </div>
+
+      <!-- 基础模式设置 -->
+      <div id="textBasicSettings">
+        <div class="form-group">
+          <label for="textVendor">文本处理厂商</label>
+          <select id="textVendor">
+            <option value="qwen">通义千问</option>
+            <option value="groq">groq</option>
+            <option value="gemini">Gemini</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="textModel">文本处理模型</label>
+          <div class="model-input-group">
+            <select id="textModelSelect">
+              <option value="custom">自定义输入</option>
+            </select>
+            <input type="text" id="textModelInput" placeholder="输入模型名称">
+            <a href="#" class="api-link model-list-link">查看模型列表</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 高级模式置 -->
+      <div id="textAdvancedSettings" style="display: none;">
+        <!-- 文本译中功能设置 -->
+        <div class="function-settings">
+          <h3>文本译中</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="text_translateCh">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="text_translateCh">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="text_translateCh" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="text_translateCh" placeholder="输入自定义提示��"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 文本译英功能设置 -->
+        <div class="function-settings">
+          <h3>文本译英</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="text_translateEn">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="text_translateEn">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="text_translateEn" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="text_translateEn" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 文本自定义功能设置 -->
+        <div class="function-settings">
+          <h3>文本自定义</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="text_custom">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="text_custom">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="text_custom" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="text_custom" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="textPrompt">自定义文本提示词</label>
+        <textarea id="textPrompt" placeholder="输入处理文本时的自定义提示词"></textarea>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="saveBtn">保存设置</button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script src="options.js" type="module"></script>
+  <script src="textareaHandler.js"></script>
+</body>
+</html>

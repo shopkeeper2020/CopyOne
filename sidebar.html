@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="sidebar.css">
+  <title>AI 助手</title>
+</head>
+<body>
+  <div class="container">
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <button id="settingsBtn" class="icon-button" data-tooltip="设置">
+        <img src="icons/设置.png" alt="设置">
+      </button>
+      <button id="clearBtn" class="icon-button" data-tooltip="清空历史">
+        <img src="icons/清空.png" alt="清空">
+      </button>
+    </div>
+
+    <!-- 对话区域 -->
+    <div class="chat-container" id="chatContainer">
+      <!-- 消息会动态插入到这里 -->
+    </div>
+
+    <!-- 底部操作区 -->
+    <div class="bottom-area">
+      <!-- 添加文本输入区域 -->
+      <div class="input-section">
+        <textarea 
+          id="userInput" 
+          class="user-input" 
+          placeholder="在此输入文本，如果为空则从剪贴板读取..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- 图片功能区 -->
+      <div class="function-section">
+        <div class="section-title">图片</div>
+        <div class="action-buttons">
+          <button id="extractTextBtn">提取文本</button>
+          <button id="translateImgChBtn">译中</button>
+          <button id="translateImgEnBtn">译英</button>
+          <button id="customImgBtn">自定义</button>
+        </div>
+      </div>
+
+      <!-- 文本功能区 -->
+      <div class="function-section">
+        <div class="section-title">文本</div>
+        <div class="action-buttons">
+          <button id="translateTextChBtn">译中</button>
+          <button id="translateTextEnBtn">译英</button>
+          <button id="customTextBtn">自定义</button>
+        </div>
+      </div>
+
+      <!-- 自定义提示词输入区（默认隐藏） -->
+      <div id="customPromptArea" class="custom-prompt-area" style="display: none;">
+        <textarea id="customPromptInput" placeholder="输入自定义提示词..."></textarea>
+        <div class="custom-prompt-buttons">
+          <button id="submitCustomPrompt">确定</button>
+          <button id="cancelCustomPrompt">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js" type="module"></script>
+  <script src="modelService.js" type="module"></script>
+  <script src="sidebar.js" type="module"></script>
+</body>
+</html>
