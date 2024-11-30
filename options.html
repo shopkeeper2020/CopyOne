@@ -532,6 +532,41 @@
       color: #1565c0;
       background-color: rgba(25, 118, 210, 0.12);
     }
+
+    /* 页脚样式 */
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+    }
+
+    .footer-divider {
+      height: 1px;
+      background: #eee;
+      margin: 0 -20px 20px;
+    }
+
+    .project-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1976d2;
+      text-decoration: none;
+      transition: color 0.2s, background-color 0.2s;
+      padding: 8px;
+      border-radius: 4px;
+      background-color: rgba(25, 118, 210, 0.04);
+      font-size: 14px;
+    }
+
+    .project-link:hover {
+      color: #1565c0;
+      background-color: rgba(25, 118, 210, 0.12);
+    }
+
+    .github-icon {
+      width: 20px;
+      height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -911,6 +946,18 @@
     </div>
 
     <div id="status" class="status"></div>
+
+    <!-- 添加分隔线和项目链接 -->
+    <div class="footer">
+      <div class="footer-divider"></div>
+      <a href="https://github.com/shopkeeper2020/CodeOne" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="project-link">
+        <img src="icons/github.png" alt="GitHub" class="github-icon">
+        GitHub: shopkeeper2020/CodeOne
+      </a>
+    </div>
   </div>
 
   <script src="options.js" type="module"></script>

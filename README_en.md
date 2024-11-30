@@ -41,7 +41,6 @@ CopyOne is a powerful browser extension that helps you quickly process images an
 - 🎨 Customizable chat interface background
 - ⌨️ Keyboard shortcuts support
 - 📝 Markdown format support
-- 🔄 Streaming response support
 - ⚙️ Advanced mode for individual function configuration
 
 ## Installation
