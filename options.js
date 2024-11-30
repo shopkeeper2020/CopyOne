@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       modelInput.value = savedModel || '';
     }
 
-    // 添加事件监听
+    // 添加��件监听
     vendorSelect.addEventListener('change', () => {
       updateModelOptions('image', vendorSelect.value, modelSelect);
       updateModelListLink(vendorSelect.value, vendorSelect.closest('.model-input-group').querySelector('.model-list-link'));
@@ -378,17 +378,66 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 不再显示成功提示
       // showStatus('背景设置已保存', 'success');  // 移除这行
     } catch (error) {
-      console.error('保存背景设置失败:', error);
+      console.error('保背景设置失败:', error);
       showStatus('保存失败', 'error');
       // 恢复开关状态
       chatBackground.checked = !chatBackground.checked;
     }
   });
 
-  // 保存按钮事件
+  // 修改保存按钮的事件处理
   document.getElementById('saveBtn').addEventListener('click', async () => {
+    // 验证基础模式下的自定义模型输入
+    if (!document.getElementById('imageAdvancedMode').checked) {
+      const imageModelSelect = document.getElementById('imageModelSelect');
+      const imageModelInput = document.getElementById('imageModelInput');
+      if (imageModelSelect.value === 'custom' && !imageModelInput.value.trim()) {
+        showStatus('请输入图片处理的自定义模型名称', 'error');
+        imageModelInput.focus();
+        return;
+      }
+    }
+
+    if (!document.getElementById('textAdvancedMode').checked) {
+      const textModelSelect = document.getElementById('textModelSelect');
+      const textModelInput = document.getElementById('textModelInput');
+      if (textModelSelect.value === 'custom' && !textModelInput.value.trim()) {
+        showStatus('请输入文本处理的自定义模型名称', 'error');
+        textModelInput.focus();
+        return;
+      }
+    }
+
+    // 验证高级模式下的自定义模型输入
+    if (document.getElementById('imageAdvancedMode').checked) {
+      const functions = ['extract', 'img_translateCh', 'img_translateEn', 'img_custom'];
+      for (const func of functions) {
+        const modelSelect = document.querySelector(`.model-select[data-function="${func}"]`);
+        const modelInput = document.querySelector(`.model-input[data-function="${func}"]`);
+        if (modelSelect.value === 'custom' && !modelInput.value.trim()) {
+          showStatus(`请输入${getFunctionName(func)}的自定义模型名称`, 'error');
+          modelInput.focus();
+          return;
+        }
+      }
+    }
+
+    if (document.getElementById('textAdvancedMode').checked) {
+      const functions = ['text_translateCh', 'text_translateEn', 'text_custom'];
+      for (const func of functions) {
+        const modelSelect = document.querySelector(`.model-select[data-function="${func}"]`);
+        const modelInput = document.querySelector(`.model-input[data-function="${func}"]`);
+        if (modelSelect.value === 'custom' && !modelInput.value.trim()) {
+          showStatus(`请输入${getFunctionName(func)}的自定义模型名称`, 'error');
+          modelInput.focus();
+          return;
+        }
+      }
+    }
+
+    // 如果验证都通过，继续原有的保存逻辑
     const newSettings = {
-      // 通用设置
+      // 通用设
       historyLimit: parseInt(document.getElementById('historyLimit').value) || 100,
       
       // API Keys
@@ -466,6 +515,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // 添加辅助函数用于获取功能的中文名称
+  function getFunctionName(func) {
+    const functionNames = {
+      'extract': '提取文本',
+      'img_translateCh': '图片译中',
+      'img_translateEn': '图片译英',
+      'img_custom': '图片自定义',
+      'text_translateCh': '文本译中',
+      'text_translateEn': '文本译英',
+      'text_custom': '文本自定义'
+    };
+    return functionNames[func] || func;
+  }
+
   // 添加快捷键监听
   document.addEventListener('keydown', async (e) => {
     // 检查是否按下 Ctrl+S (Windows) 或 Command+S (Mac)
@@ -498,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // 添加点击事件
     resetButton.addEventListener('click', () => {
-      // 检查是否有默认提示词
+      // 查是否有默认提示词
       const defaultPrompt = DEFAULT_PROMPTS[func];
       if (defaultPrompt === undefined) {
         showStatus('该功能没有默认提示词', 'error');
@@ -729,9 +792,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 监听窗口焦点变化，当用户从快捷键设置页面返回时更新显示
+  // 监听窗口焦点变化，当户从快捷键设置页面返回时更新显示
   window.addEventListener('focus', async () => {
     await updateShortcutDisplay();
+  });
+
+  // 为所有厂商选择器添加事件监听
+  const vendorSelectors = document.querySelectorAll('select[id$="Vendor"], .vendor-select');
+  vendorSelectors.forEach(vendorSelect => {
+    vendorSelect.addEventListener('change', () => {
+      const type = vendorSelect.id?.includes('text') || vendorSelect.dataset.function?.includes('text') ? 'text' : 'image';
+      const modelSelect = vendorSelect.closest('.form-group')?.querySelector('select[id$="ModelSelect"], .model-select');
+      if (modelSelect) {
+        updateModelOptions(type, vendorSelect.value, modelSelect);
+      }
+    });
   });
 });
 
@@ -739,6 +814,10 @@ function updateModelOptions(type, vendor, selectElement) {
   // 如果没有提供特定的 select 元素，使用默认的
   const select = selectElement || document.getElementById(`${type}ModelSelect`);
   const models = MODEL_OPTIONS[vendor]?.[type] || [];
+  
+  // 获取已存在的输入框
+  const modelInputGroup = select.closest('.model-input-group');
+  const modelInput = modelInputGroup.querySelector('.model-input');
   
   // 清除现有选项，保留自定义选项
   select.innerHTML = '<option value="custom">自定义输入</option>';
@@ -767,22 +846,22 @@ function updateModelOptions(type, vendor, selectElement) {
   }
 
   // 更新模型列表链接
-  const links = document.querySelectorAll('.model-input-group .api-link');
-  links.forEach(link => {
-    if (vendor === 'qwen') {
-      link.href = 'https://help.aliyun.com/zh/model-studio/getting-started/models#cf6cc4aa2aokf';
-      link.textContent = '查看通义千问模型列表';
-    } else if (vendor === 'gemini') {
-      link.href = 'https://ai.google.dev/gemini-api/docs/models/gemini?hl=zh-cn#model-versions';
-      link.textContent = '查看 Gemini 模型列表';
-    } else if (vendor === 'groq') {
-      link.href = 'https://console.groq.com/docs/models';
-      link.textContent = '查看 Groq 模型列表';
-    } else {
-      link.href = '#';
-      link.textContent = '';
+  const link = modelInputGroup.querySelector('.model-list-link');
+  if (link) {
+    updateModelListLink(vendor, link);
+  }
+
+  // 根据选择显示/隐藏输入框
+  select.addEventListener('change', () => {
+    if (modelInput) {
+      modelInput.style.display = select.value === 'custom' ? 'block' : 'none';
     }
   });
+
+  // 初始化时也要检查是否显示输入框
+  if (modelInput) {
+    modelInput.style.display = select.value === 'custom' ? 'block' : 'none';
+  }
 }
 
 function showStatus(message, type) {
@@ -811,6 +890,8 @@ function isModelInList(vendor, type, model) {
 
 // 更新模型列表链接
 function updateModelListLink(vendor, linkElement) {
+  if (!linkElement) return;
+
   const links = {
     qwen: {
       url: 'https://help.aliyun.com/zh/model-studio/getting-started/models#cf6cc4aa2aokf',
@@ -829,4 +910,8 @@ function updateModelListLink(vendor, linkElement) {
   const linkInfo = links[vendor] || { url: '#', text: '' };
   linkElement.href = linkInfo.url;
   linkElement.textContent = linkInfo.text;
+  
+  // 添加新标签页打开属性
+  linkElement.target = '_blank';
+  linkElement.rel = 'noopener noreferrer';  // 添加安全属性
 }

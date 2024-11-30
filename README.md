@@ -13,16 +13,14 @@
 
 ## 功能展示
 
-![功能展示](screenshots/demo.gif)
-
 ### 图片处理
-![图片处理](screenshots/image-processing.png)
+![图片处理](screenshots/图片功能展示.png)
 
 ### 文本处理
-![文本处理](screenshots/text-processing.png)
+![文本处理](screenshots/文本功能展示.png)
 
 ### 设置界面
-![设置界面](screenshots/settings.png)
+![设置界面](screenshots/设置页面展示.png)
 
 ## 主要功能
 

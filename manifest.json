@@ -27,9 +27,13 @@
     "toggle_sidebar": {
       "suggested_key": {
         "default": "Ctrl+Shift+Z",
-        "mac": "Command+Shift+Z"
+        "mac": "Command+Shift+Z",
+        "chromeos": "Ctrl+Shift+Z",
+        "linux": "Ctrl+Shift+Z",
+        "windows": "Ctrl+Shift+Z"
       },
-      "description": "Toggle sidebar visibility"
+      "description": "Toggle sidebar visibility",
+      "global": false
     }
   },
   "content_security_policy": {

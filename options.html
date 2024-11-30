@@ -53,13 +53,17 @@
       display: block;
       margin-top: 4px;
       font-size: 12px;
-      color: #666;
+      color: #1976d2;
       text-decoration: none;
+      transition: color 0.2s, background-color 0.2s;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background-color: rgba(25, 118, 210, 0.04);
     }
 
     .api-link:hover {
-      color: #1976d2;
-      text-decoration: underline;
+      color: #1565c0;
+      background-color: rgba(25, 118, 210, 0.12);
     }
 
     .button-group {
@@ -492,6 +496,42 @@
     .container > h1:not(.title-content h1) {
       display: none;  /* 隐藏原有的标题 */
     }
+
+    /* 修改所有可点击链接的样式 */
+    .api-link,
+    .model-list-link {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #1976d2;
+      text-decoration: none;
+      transition: color 0.2s, background-color 0.2s;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background-color: rgba(25, 118, 210, 0.04);
+    }
+
+    /* 鼠标悬停时的样式 */
+    .api-link:hover,
+    .model-list-link:hover {
+      color: #1565c0;
+      background-color: rgba(25, 118, 210, 0.12);
+    }
+
+    /* 特别处理快捷键链接 */
+    #shortcutLink {
+      color: #1976d2;
+      text-decoration: none;
+      transition: color 0.2s, background-color 0.2s;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background-color: rgba(25, 118, 210, 0.04);
+    }
+
+    #shortcutLink:hover {
+      color: #1565c0;
+      background-color: rgba(25, 118, 210, 0.12);
+    }
   </style>
 </head>
 <body>
@@ -761,8 +801,8 @@
             <select id="textModelSelect">
               <option value="custom">自定义输入</option>
             </select>
-            <input type="text" id="textModelInput" placeholder="输入模型名称">
-            <a href="#" class="api-link model-list-link">查看模型列表</a>
+            <input type="text" id="textModelInput" class="model-input" placeholder="输入模型名称" style="display: none;">
+            <a href="#" class="model-list-link">查看模型列表</a>
           </div>
         </div>
       </div>
@@ -793,7 +833,7 @@
           <div class="form-group">
             <label>自定义提示词</label>
             <div class="textarea-container">
-              <textarea class="prompt-input" data-function="text_translateCh" placeholder="输入自定义提示��"></textarea>
+              <textarea class="prompt-input" data-function="text_translateCh" placeholder="输入自定义提示"></textarea>
               <button class="expand-btn" title="放大编辑"></button>
             </div>
           </div>
