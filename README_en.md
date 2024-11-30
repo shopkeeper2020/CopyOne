@@ -19,7 +19,7 @@ CopyOne is a powerful browser extension that helps you quickly process images an
 ![Text Processing](screenshots/文本功能展示.png)
 
 ### Settings Interface
-![Settings](screenshots/settings.png)
+![Settings](screenshots/设置页面展示.png)
 
 ## Key Features
 
