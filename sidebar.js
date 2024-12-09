@@ -258,7 +258,7 @@ class Sidebar {
           headerLeft.className = 'message-header-left';
           
           const avatar = document.createElement('img');
-          avatar.src = item.role === 'user' ? 'icons/用户.png' : 'icons/icon.png';
+          avatar.src = item.role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
           avatar.alt = item.role === 'user' ? 'You' : 'CopySide';
           
           const name = document.createElement('span');
@@ -922,7 +922,7 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/icon.png';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
     avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
     
     const name = document.createElement('span');
@@ -1023,7 +1023,7 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/icon.png';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
     avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
     
     const name = document.createElement('span');
@@ -1143,7 +1143,7 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/icon.png';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
     avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
     
     const name = document.createElement('span');

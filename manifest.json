@@ -1,19 +1,14 @@
 {
   "manifest_version": 3,
   "name": "CopyOne",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "A simple sidebar extension.",
   "permissions": ["sidePanel", "clipboardRead", "storage"],
-  "host_permissions": [
-    "https://dashscope.aliyuncs.com/*",
-    "https://api.groq.com/*",
-    "https://generativelanguage.googleapis.com/*"
-  ],
   "action": {
     "default_icon": {
-      "16": "icons/icon.png",
-      "48": "icons/icon.png",
-      "128": "icons/icon.png"
+      "16": "icons/绘制简笔画128.png",
+      "48": "icons/绘制简笔画128.png",
+      "128": "icons/绘制简笔画128.png"
     }
   },
   "side_panel": {
@@ -32,7 +27,7 @@
         "linux": "Ctrl+Shift+Z",
         "windows": "Ctrl+Shift+Z"
       },
-      "description": "Toggle sidebar visibility",
+      "description": "展开侧边栏",
       "global": false
     }
   },
