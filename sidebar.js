@@ -258,8 +258,8 @@ class Sidebar {
           headerLeft.className = 'message-header-left';
           
           const avatar = document.createElement('img');
-          avatar.src = item.role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
-          avatar.alt = item.role === 'user' ? 'You' : 'CopySide';
+          avatar.src = item.role === 'user' ? 'icons/用户.png' : 'icons/图标629x629.png';
+          avatar.alt = item.role === 'user' ? 'You' : 'CopyOne';
           
           const name = document.createElement('span');
           if (item.role === 'assistant') {
@@ -922,8 +922,8 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
-    avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/图标629x629.png';
+    avatar.alt = role === 'user' ? 'You' : 'CopyOne';
     
     const name = document.createElement('span');
     if (role === 'assistant') {
@@ -1023,8 +1023,8 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
-    avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/图标629x629.png';
+    avatar.alt = role === 'user' ? 'You' : 'CopyOne';
     
     const name = document.createElement('span');
     name.textContent = role === 'user' ? 'You' : 'GLM-WEB';
@@ -1143,8 +1143,8 @@ class Sidebar {
     headerLeft.className = 'message-header-left';
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/绘制简笔画128.png';
-    avatar.alt = role === 'user' ? 'You' : 'GLM-WEB';
+    avatar.src = role === 'user' ? 'icons/用户.png' : 'icons/图标629x629.png';
+    avatar.alt = role === 'user' ? 'You' : 'CopyOne';
     
     const name = document.createElement('span');
     if (role === 'assistant') {
