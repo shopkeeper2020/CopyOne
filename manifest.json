@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CopyOne",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple sidebar extension.",
   "permissions": ["sidePanel", "clipboardRead", "storage","tabs"],
   "action": {
@@ -41,6 +41,12 @@
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "homepage_url": "https://github.com/shopkeeper2020/CopyOne",
-  "privacy_policy": "https://github.com/shopkeeper2020/CopyOne"
-
+  "privacy_policy": "https://github.com/shopkeeper2020/CopyOne",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "run_at": "document_end"
+    }
+  ]
 }
