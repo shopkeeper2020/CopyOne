@@ -47,6 +47,8 @@ class Sidebar {
       this.translateImgChBtn = document.getElementById('translateImgChBtn');
       this.translateImgEnBtn = document.getElementById('translateImgEnBtn');
       this.customImgBtn = document.getElementById('customImgBtn');
+      this.translateOriginalImgChBtn = document.getElementById('translateOriginalImgChBtn');
+      this.translateOriginalImgEnBtn = document.getElementById('translateOriginalImgEnBtn');
       
       // 检查元素是否成功获取
       const elements = {
@@ -55,7 +57,9 @@ class Sidebar {
         extractTextBtn: this.extractTextBtn,
         translateImgChBtn: this.translateImgChBtn,
         translateImgEnBtn: this.translateImgEnBtn,
-        customImgBtn: this.customImgBtn
+        customImgBtn: this.customImgBtn,
+        translateOriginalImgChBtn: this.translateOriginalImgChBtn,
+        translateOriginalImgEnBtn: this.translateOriginalImgEnBtn
       };
 
       // 检查是否有任何元素未找到
@@ -92,24 +96,34 @@ class Sidebar {
   initEventListeners() {
     console.log('开始绑定事件监听器');
     try {
-      // 设按钮事件
+      // 设置按钮事件
       if (this.settingsBtn) {
         this.settingsBtn.addEventListener('click', () => {
+          console.log('设置按钮被点击');
           chrome.runtime.openOptionsPage();
         });
       }
 
       if (this.saveSettingsBtn) {
-        this.saveSettingsBtn.addEventListener('click', () => this.saveSettings());
+        this.saveSettingsBtn.addEventListener('click', () => {
+          console.log('保存设置按钮被点击');
+          this.saveSettings();
+        });
       }
 
       if (this.cancelSettingsBtn) {
-        this.cancelSettingsBtn.addEventListener('click', () => this.hideSettings());
+        this.cancelSettingsBtn.addEventListener('click', () => {
+          console.log('取消设置按钮被点击');
+          this.hideSettings();
+        });
       }
       
       // 清空按钮事件
       if (this.clearBtn) {
-        this.clearBtn.addEventListener('click', () => this.clearChat());
+        this.clearBtn.addEventListener('click', () => {
+          console.log('清空按钮被点击');
+          this.clearChat();
+        });
       }
       
       // 图片功能区按钮事件
@@ -141,26 +155,55 @@ class Sidebar {
         });
       }
 
+      if (this.translateOriginalImgChBtn) {
+        this.translateOriginalImgChBtn.addEventListener('click', () => {
+          console.log('原图译中按钮被点击');
+          this.handleImageAction('img_translateOriginalCh');
+        });
+      }
+
+      if (this.translateOriginalImgEnBtn) {
+        this.translateOriginalImgEnBtn.addEventListener('click', () => {
+          console.log('原图译英按钮被点击');
+          this.handleImageAction('img_translateOriginalEn');
+        });
+      }
+
       // 文本功能区按钮事件
       if (this.translateTextChBtn) {
-        this.translateTextChBtn.addEventListener('click', () => this.handleTextAction('text_translateCh'));
+        this.translateTextChBtn.addEventListener('click', () => {
+          console.log('文本译中按钮被点击');
+          this.handleTextAction('text_translateCh');
+        });
       }
 
       if (this.translateTextEnBtn) {
-        this.translateTextEnBtn.addEventListener('click', () => this.handleTextAction('text_translateEn'));
+        this.translateTextEnBtn.addEventListener('click', () => {
+          console.log('文本译英按钮被点击');
+          this.handleTextAction('text_translateEn');
+        });
       }
 
       if (this.customTextBtn) {
-        this.customTextBtn.addEventListener('click', () => this.handleTextAction('text_custom'));
+        this.customTextBtn.addEventListener('click', () => {
+          console.log('自定义文本按钮被点击');
+          this.handleTextAction('text_custom');
+        });
       }
 
       // 自定义提示词相关事件
       if (this.submitCustomPrompt) {
-        this.submitCustomPrompt.addEventListener('click', () => this.handleCustomPromptSubmit());
+        this.submitCustomPrompt.addEventListener('click', () => {
+          console.log('提交自定义提示词按钮被点击');
+          this.saveCustomPrompt();
+        });
       }
 
       if (this.cancelCustomPrompt) {
-        this.cancelCustomPrompt.addEventListener('click', () => this.hideCustomPromptArea());
+        this.cancelCustomPrompt.addEventListener('click', () => {
+          console.log('取消自定义提示词按钮被点击');
+          this.hideCustomPrompt();
+        });
       }
 
       console.log('事件监听器绑定完成');
@@ -233,7 +276,7 @@ class Sidebar {
       const { history = [] } = await chrome.storage.local.get('history');
       console.log('加载历史记录:', history);
       
-      // 按时间戳排序，确保消按正确顺序显示
+      // 按时间戳排序，确保消息按正确顺序显示
       history.sort((a, b) => a.timestamp - b.timestamp);
       
       // 清空当前显示的消息
@@ -270,7 +313,9 @@ class Sidebar {
               'img_custom': '图片自定义',
               'text_translateCh': '文本译中',
               'text_translateEn': '文本译英',
-              'text_custom': '文本自定义'
+              'text_custom': '文本自定义',
+              'img_translateOriginalCh': '原图译中',
+              'img_translateOriginalEn': '原图译英'
             };
             name.textContent = `CopyOne · ${functionNames[item.action] || ''}`;
           } else {
@@ -648,6 +693,8 @@ class Sidebar {
         }
       }));
 
+    } catch (error) {
+      console.error('处理队列时出错:', error);
     } finally {
       this.isProcessing = false;
       
@@ -698,6 +745,27 @@ class Sidebar {
     } catch (error) {
       console.error('Error in handleImageAction:', error);
       this.showToast('处理图片失败');
+    }
+  }
+
+  async processImage(imageUrl, action) {
+    try {
+      const settings = await config.getFunctionSettings(action);
+      const modelService = ModelServiceFactory.createService(
+        settings.vendor,
+        settings.model,
+        settings[`${settings.vendor}ApiKey`],
+        {
+          advancedMode: false,
+          prompt: settings.prompt,
+          abortSignal: this.abortController.signal
+        }
+      );
+
+      return await modelService.processImage(imageUrl, action);
+    } catch (error) {
+      console.error('Error in processImage:', error);
+      throw error;
     }
   }
 
@@ -760,20 +828,46 @@ class Sidebar {
 
       const result = await modelService.processImage(request.content, request.action);
       this.removeLoadingMessage(loadingMessageId);
+
+      let processedResult = result;
+      let translatedImageUrl = request.content;
+
+      // 如果是原图译中或原图译英，处理 JSON 数组
+      if (request.action === 'img_translateOriginalCh' || request.action === 'img_translateOriginalEn') {
+        console.log('处理 JSON 数组:', result);
+        const jsonArray = JSON.parse(result);
+
+        // 显示替换了翻译结果的图片
+        translatedImageUrl = await this.getTranslatedImageUrl(request.content, jsonArray);
+        const responseElement = this.addImageToChat(translatedImageUrl, 'assistant', false);
+        request.userMessageElement.insertAdjacentElement('afterend', responseElement);
+        
+        // 保存 AI 响应到历史记录
+        this.saveToHistory({
+          type: 'image',
+          data: translatedImageUrl,
+          role: 'assistant',
+          action: request.action,
+          timestamp: Date.now(),
+          duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
+        });
+      } else {
+        // 在用户消息后插入 AI 响应
+        const responseElement = this.createMessageElement(JSON.stringify(processedResult), 'assistant', request.action);
+        request.userMessageElement.insertAdjacentElement('afterend', responseElement);
+        
+        // 保存 AI 响应到历史记录
+        this.saveToHistory({
+          type: 'text',
+          data: result,
+          role: 'assistant',
+          action: request.action,
+          timestamp: Date.now(),
+          duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
+        });
+    }
       
-      // 在用户消息后插入 AI 响应
-      const responseElement = this.createMessageElement(result, 'assistant', request.action);
-      request.userMessageElement.insertAdjacentElement('afterend', responseElement);
-      
-      // 保存 AI 响应到历史记录
-      this.saveToHistory({
-        type: 'text',
-        data: result,
-        role: 'assistant',
-        action: request.action,
-        timestamp: Date.now(),
-        duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
-      });
+
       
       this.scrollToBottom();
     } catch (error) {
@@ -894,6 +988,7 @@ class Sidebar {
       this.abortController.abort();
       this.removeLoadingMessage(messageId);
       this.showToast('已停止处理');
+      this.isProcessing = false; // 确保停止后可以继续处理队列
     };
 
     loadingContainer.appendChild(leftContent);
@@ -934,7 +1029,9 @@ class Sidebar {
         'img_custom': '图片自定义',
         'text_translateCh': '文本译中',
         'text_translateEn': '文本译英',
-        'text_custom': '文本自定义'
+        'text_custom': '文本自定义',
+        'img_translateOriginalCh': '原图译中',
+        'img_translateOriginalEn': '原图译英'
       };
       name.textContent = `CopyOne · ${functionNames[action] || ''}`;
     } else {
@@ -1027,7 +1124,7 @@ class Sidebar {
     avatar.alt = role === 'user' ? 'You' : 'CopyOne';
     
     const name = document.createElement('span');
-    name.textContent = role === 'user' ? 'You' : 'GLM-WEB';
+    name.textContent = role === 'user' ? 'You' : 'CopyOne';
     
     headerLeft.appendChild(avatar);
     headerLeft.appendChild(name);
@@ -1155,7 +1252,9 @@ class Sidebar {
         'img_custom': '图片自定义',
         'text_translateCh': '文本译中',
         'text_translateEn': '文本译英',
-        'text_custom': '文本自定义'
+        'text_custom': '文本自定义',
+        'img_translateOriginalCh': '原图译中',
+        'img_translateOriginalEn': '原图译英'
       };
       name.textContent = `CopyOne · ${functionNames[action] || ''}`;
     } else {
@@ -1303,6 +1402,45 @@ class Sidebar {
       chatContainer.dataset.hasBackground = settings.chatBackground ? "true" : "false";
       console.log('Applied chat background setting:', chatContainer.dataset.hasBackground);
     }
+  }
+
+  // 添加替换图片中文本的方法
+  async replaceTextInImage(ctx, originalText, translatedText, positions) {
+    // 这里实现替换图片中文本的逻辑
+    // 例如，使用 Canvas API 或其他图像处理库
+    console.log(`替换图片中的文本: ${originalText} -> ${translatedText}`);
+    positions.forEach(pos => {
+      ctx.clearRect(pos.left, pos.top, pos.width, pos.height);
+      ctx.fillText(translatedText, pos.left, pos.top + pos.height);
+    });
+  }
+
+  // 获取替换了翻译结果的图片 URL
+  async getTranslatedImageUrl(imageUrl, translations) {
+    console.log('获取替换了翻译结果的图片 URL');
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    let img = new Image();
+    img.src = imageUrl;
+
+    return new Promise((resolve) => {
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // 遍历翻译结果，替换图片中的文本
+        translations.forEach(item => {
+          const [left, top, right, bottom] = item.box_2d;
+          const width = right - left;
+          const height = bottom - top;
+          ctx.clearRect(left, top, width, height);
+          ctx.fillText(item.label, left, top + height);
+        });
+
+        resolve(canvas.toDataURL());
+      };
+    });
   }
 }
 

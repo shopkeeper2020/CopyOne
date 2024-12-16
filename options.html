@@ -674,7 +674,7 @@
             <select id="imageModelSelect">
               <option value="custom">自定义输入</option>
             </select>
-            <input type="text" id="imageModelInput" placeholder="输入模型名称">
+            <input type="text" id="imageModelInput" class="model-input" placeholder="输入模型名称">
             <a href="#" class="api-link model-list-link">查看模型列表</a>
           </div>
         </div>
@@ -797,6 +797,66 @@
             <label>自定义提示词</label>
             <div class="textarea-container">
               <textarea class="prompt-input" data-function="img_custom" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 原图译中功能设置 -->
+        <div class="function-settings">
+          <h3>原图译中</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="img_translateOriginalCh">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="img_translateOriginalCh">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="img_translateOriginalCh" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="img_translateOriginalCh" placeholder="输入自定义提示词"></textarea>
+              <button class="expand-btn" title="放大编辑"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 原图译英功能设置 -->
+        <div class="function-settings">
+          <h3>原图译英</h3>
+          <div class="form-group">
+            <label>厂商</label>
+            <select class="vendor-select" data-function="img_translateOriginalEn">
+              <option value="qwen">通义千问</option>
+              <option value="groq">groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>模型</label>
+            <div class="model-input-group">
+              <select class="model-select" data-function="img_translateOriginalEn">
+                <option value="custom">自定义输入</option>
+              </select>
+              <input type="text" class="model-input" data-function="img_translateOriginalEn" placeholder="输入模型名称">
+              <a href="#" class="api-link model-list-link">查看模型列表</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>自定义提示词</label>
+            <div class="textarea-container">
+              <textarea class="prompt-input" data-function="img_translateOriginalEn" placeholder="输入自定义提示词"></textarea>
               <button class="expand-btn" title="放大编辑"></button>
             </div>
           </div>

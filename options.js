@@ -1,99 +1,5 @@
 import config from './config.js';
-
-// 定义模型列表
-const MODEL_OPTIONS = {
-  qwen: {
-    image: [
-      'qwen-vl-max-latest',
-      'qwen-vl-max',
-      'qwen-vl-plus-latest',
-      'qwen-vl-plus'
-    ],
-    text: [
-      'qwen-max-latest',
-      'qwen-max',
-      'qwen-plus-latest',
-      'qwen-plus',
-      'qwen-turbo-latest',
-      'qwen-turbo',
-      'qwen-long',
-      { value: 'qwen-vl-max-latest', isMultimodal: true },
-      { value: 'qwen-vl-max', isMultimodal: true },
-      { value: 'qwen-vl-plus-latest', isMultimodal: true },
-      { value: 'qwen-vl-plus', isMultimodal: true }
-    ]
-  },
-  groq: {
-    image: [
-      'llama-3.2-90b-vision-preview',
-      'llama-3.2-11b-vision-preview'
-    ],
-    text: [
-      'llama-3.1-70b-versatile',
-      { value: 'llama-3.2-90b-vision-preview', isMultimodal: true },
-      { value: 'llama-3.2-11b-vision-preview', isMultimodal: true }
-    ]
-  },
-  gemini: {
-    image: [
-      'gemini-1.5-pro-latest',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash'
-    ],
-    text: [
-      'gemini-1.5-pro-latest',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash'
-    ]
-  }
-};
-
-// 添加默认提示词常量
-const DEFAULT_PROMPTS = {
-  extract: `## 任务：
-你是一个文本提取助手，擅长把图片中的文本都提取出来。
-
-## 要求：
-- 仅输出提取之后的结果，不要输出多余内容，也不要进行解释。
-- 保留原格式。`,
-
-  img_translateCh: `## 任务：
-你是一个翻译大师，擅长把图片中的文本翻译为中文。
-
-## 要求：
-- 仅输出翻译之后的结果，不要输出多余内容，也不要进行解释。
-- 翻译的结果为简体中文。
-- 保留原格式。`,
-
-  img_translateEn: `##Task:
-You are a translation master who excels at translating text from images into English.
-
-##Requirement:
--Only output the translated result, do not output unnecessary content.
--The translation result is in English.
-- Preserve the source format.`,
-
-  text_translateCh: `## 任务：
-你是一个翻译大师，擅长把文本翻译为中文。
-
-## 要求：
-- 仅输出翻译之后的结果，不要输出多余内容，也不要进行解释。
-- 翻译的结果为简体中文。
-- 保留源格式。`,
-
-  text_translateEn: `## Task:
-You are a translation master, skilled at translating texts into English.
-
-## Requirement:
-- Only output the translated result, do not output unnecessary content.
-- The translation result is in English.
-- Preserve the source format.`,
-
-  img_custom: '',
-  text_custom: ''
-};
+import { DEFAULT_PROMPTS, MODEL_OPTIONS } from './modelService.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await config.getSettings();
@@ -198,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // 初始化所有功能的厂商和模型选择
-  const functions = ['extract', 'img_translateCh', 'img_translateEn', 'img_custom'];
+  const functions = ['extract', 'img_translateCh', 'img_translateEn', 'img_custom', 'img_translateOriginalCh', 'img_translateOriginalEn'];
   functions.forEach(func => {
     const vendorSelect = document.querySelector(`.vendor-select[data-function="${func}"]`);
     const modelSelect = document.querySelector(`.model-select[data-function="${func}"]`);
@@ -218,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       modelInput.value = savedModel || '';
     }
 
-    // 添加��件监听
+    // 添加事件监听
     vendorSelect.addEventListener('change', () => {
       updateModelOptions('image', vendorSelect.value, modelSelect);
       updateModelListLink(vendorSelect.value, vendorSelect.closest('.model-input-group').querySelector('.model-list-link'));
@@ -378,7 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 不再显示成功提示
       // showStatus('背景设置已保存', 'success');  // 移除这行
     } catch (error) {
-      console.error('保背景设置失败:', error);
+      console.error('保存背景设置失败:', error);
       showStatus('保存失败', 'error');
       // 恢复开关状态
       chatBackground.checked = !chatBackground.checked;
@@ -410,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 验证高级模式下的自定义模型输入
     if (document.getElementById('imageAdvancedMode').checked) {
-      const functions = ['extract', 'img_translateCh', 'img_translateEn', 'img_custom'];
+      const functions = ['extract', 'img_translateCh', 'img_translateEn', 'img_custom', 'img_translateOriginalCh', 'img_translateOriginalEn'];
       for (const func of functions) {
         const modelSelect = document.querySelector(`.model-select[data-function="${func}"]`);
         const modelInput = document.querySelector(`.model-input[data-function="${func}"]`);
@@ -437,7 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 如果验证都通过，继续原有的保存逻辑
     const newSettings = {
-      // 通用设
+      // 通用设置
       historyLimit: parseInt(document.getElementById('historyLimit').value) || 100,
       
       // API Keys
@@ -467,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 图片高级模式设置
     if (document.getElementById('imageAdvancedMode').checked) {
-      ['extract', 'img_translateCh', 'img_translateEn', 'img_custom'].forEach(func => {
+      ['extract', 'img_translateCh', 'img_translateEn', 'img_custom', 'img_translateOriginalCh', 'img_translateOriginalEn'].forEach(func => {
         const vendorSelect = document.querySelector(`.vendor-select[data-function="${func}"]`);
         const modelSelect = document.querySelector(`.model-select[data-function="${func}"]`);
         const modelInput = document.querySelector(`.model-input[data-function="${func}"]`);
@@ -524,7 +430,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       'img_custom': '图片自定义',
       'text_translateCh': '文本译中',
       'text_translateEn': '文本译英',
-      'text_custom': '文本自定义'
+      'text_custom': '文本自定义',
+      'img_translateOriginalCh': '原图译中',
+      'img_translateOriginalEn': '原图译英'
     };
     return functionNames[func] || func;
   }
@@ -792,7 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 监听窗口焦点变化，当户从快捷键设置页面返回时更新显示
+  // 监听窗口焦点变化，当用户从快捷键设置页面返回时更新显示
   window.addEventListener('focus', async () => {
     await updateShortcutDisplay();
   });
