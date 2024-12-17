@@ -5,7 +5,9 @@
 首复是一个强大的浏览器扩展，它可以帮助你快速处理剪贴板中的图片和文本内容。无论是提取图片中的文本、翻译内容，还是自定义处理，首复都能帮你轻松完成。
 
 ## 安装方式
-Chromium内核的浏览器推荐-->[谷歌应用商店下载](https://chromewebstore.google.com/detail/copyone/dceinadggpebpjaphffnfkmldgojblhk?hl=zh-CN)
+Chromium内核的浏览器推荐-->[谷歌应用商店安装](https://chromewebstore.google.com/detail/copyone/dceinadggpebpjaphffnfkmldgojblhk?hl=zh-CN)
+
+edge浏览器--->微软应用商店安装
 
 其他安装方式/最新版本-->[压缩包下载](https://github.com/shopkeeper2020/CopyOne/releases)
 
