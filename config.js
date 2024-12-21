@@ -17,6 +17,10 @@ const DEFAULT_SETTINGS = {
   textVendor: 'qwen',
   textModel: 'qwen-turbo',
   textAdvancedMode: false,
+  
+  // 百度翻译API配置
+  baiduClientId: '',
+  baiduClientSecret: '',
 };
 
 class Config {

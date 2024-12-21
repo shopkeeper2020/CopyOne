@@ -3,7 +3,17 @@
   "name": "CopyOne",
   "version": "1.0.3",
   "description": "A simple sidebar extension.",
-  "permissions": ["sidePanel", "clipboardRead", "storage","tabs"],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "clipboardRead",
+    "clipboardWrite",
+    "sidePanel",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_icon": {
       "16": "icons/图标629x629.png",

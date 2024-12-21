@@ -4,6 +4,13 @@ import { DEFAULT_PROMPTS, MODEL_OPTIONS } from './modelService.js';
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await config.getSettings();
   
+  // 初始化 API Keys
+  document.getElementById('qwenApiKey').value = settings.qwenApiKey || '';
+  document.getElementById('groqApiKey').value = settings.groqApiKey || '';
+  document.getElementById('geminiApiKey').value = settings.geminiApiKey || '';
+  document.getElementById('baiduClientId').value = settings.baiduClientId || '';
+  document.getElementById('baiduClientSecret').value = settings.baiduClientSecret || '';
+
   // 初始化基础模式的图片设置
   const imageVendor = document.getElementById('imageVendor');
   const imageModelSelect = document.getElementById('imageModelSelect');
@@ -369,6 +376,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       img_customPrompt: document.getElementById('imagePrompt').value.trim(),
       text_customPrompt: document.getElementById('textPrompt').value.trim(),
       chatBackground: document.getElementById('chatBackground').checked,
+      baiduClientId: document.getElementById('baiduClientId').value.trim(),
+      baiduClientSecret: document.getElementById('baiduClientSecret').value.trim(),
     };
 
     // 图片高级模式设置

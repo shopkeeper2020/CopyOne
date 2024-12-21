@@ -1,6 +1,7 @@
 import config from './config.js';
 import { ModelServiceFactory } from './modelService.js';
 import { marked } from './marked.js';
+import BaiduTranslateService from './modelServices/BaiduTranslateService.js';
 
 class Sidebar {
   constructor() {
@@ -24,6 +25,8 @@ class Sidebar {
         this.applySettings(changes.settings.newValue);
       }
     });
+
+    this.baiduTranslator = null;
   }
 
   init() {
@@ -687,7 +690,12 @@ class Sidebar {
       // 并发处理所有请求
       await Promise.all(currentRequests.map(request => {
         if (request.type === 'image') {
-          return this._processImageRequest(request);
+          // 区分图片->文本和图片->图片请求
+          if (request.action === 'img_translateOriginalCh' || request.action === 'img_translateOriginalEn') {
+            return this._processImageToImageRequest(request);
+          } else {
+            return this._processImageRequest(request);
+          }
         } else if (request.type === 'text') {
           return this._processTextRequest(request);
         }
@@ -808,7 +816,7 @@ class Sidebar {
     }
   }
 
-  // 处理图片请求
+  // 处理图片->文本请求
   async _processImageRequest(request) {
     this.startTime = request.timestamp;
     const loadingMessageId = this.addLoadingMessage(request.userMessageElement);
@@ -829,44 +837,19 @@ class Sidebar {
       const result = await modelService.processImage(request.content, request.action);
       this.removeLoadingMessage(loadingMessageId);
 
-      let translatedImageUrl = request.content;
-
-      // 如果是原图译中或原图译英，处理 JSON 数组
-      if (request.action === 'img_translateOriginalCh' || request.action === 'img_translateOriginalEn') {
-        console.log('处理 JSON 数组:', result);
-        const jsonArray = JSON.parse(result);
-
-        // 显示替换了翻译结果的图片
-        translatedImageUrl = await this.getTranslatedImageUrl(request.content, jsonArray);
-        const responseElement = this.addImageToChat(translatedImageUrl, 'assistant', false);
-        request.userMessageElement.insertAdjacentElement('afterend', responseElement);
-        
-        // 保存 AI 响应到历史记录
-        this.saveToHistory({
-          type: 'image',
-          data: translatedImageUrl,
-          role: 'assistant',
-          action: request.action,
-          timestamp: Date.now(),
-          duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
-        });
-      } else {
-        // 在用户消息后插入 AI 响应
-        const responseElement = this.createMessageElement(result, 'assistant', request.action);
-        request.userMessageElement.insertAdjacentElement('afterend', responseElement);
-        
-        // 保存 AI 响应到历史记录
-        this.saveToHistory({
-          type: 'text',
-          data: result,
-          role: 'assistant',
-          action: request.action,
-          timestamp: Date.now(),
-          duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
-        });
-    }
+      // 在用户消息后插入 AI 响应
+      const responseElement = this.createMessageElement(result, 'assistant', request.action);
+      request.userMessageElement.insertAdjacentElement('afterend', responseElement);
       
-
+      // 保存 AI 响应到历史记录
+      this.saveToHistory({
+        type: 'text',
+        data: result,
+        role: 'assistant',
+        action: request.action,
+        timestamp: Date.now(),
+        duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
+      });
       
       this.scrollToBottom();
     } catch (error) {
@@ -878,7 +861,62 @@ class Sidebar {
     }
   }
 
-  // 处理文本请求
+  // 处理图片->图片请求
+  async _processImageToImageRequest(request) {
+    this.startTime = request.timestamp;
+    const loadingMessageId = this.addLoadingMessage(request.userMessageElement);
+
+    try {
+      // 初始化百度翻译器
+      if (!this.baiduTranslator) {
+        await this.initBaiduTranslator();
+      }
+
+      if (!this.baiduTranslator) {
+        this.removeLoadingMessage(loadingMessageId);
+        this.showToast('请先在设置中配置百度翻译API');
+        return;
+      }
+
+      // 确定翻译方向
+      const toLang = request.action === 'img_translateOriginalCh' ? 'zh' : 'en';
+      const fromLang = 'auto';
+
+      // 执行翻译
+      const result = await this.baiduTranslator.translateImage(request.content, fromLang, toLang);
+
+      // 移除加载消息
+      this.removeLoadingMessage(loadingMessageId);
+
+      if (!result) {
+        this.showToast('翻译失败');
+        return;
+      }
+
+      // 在用户消息后插入翻译结果
+      const responseElement = this.addImageToChat(result, 'assistant', request.action);
+      request.userMessageElement.insertAdjacentElement('afterend', responseElement);
+
+      // 保存到历史记录
+      this.saveToHistory({
+        type: 'image',
+        data: result,
+        role: 'assistant',
+        action: request.action,
+        timestamp: Date.now(),
+        duration: ((Date.now() - this.startTime) / 1000).toFixed(2)
+      });
+
+      this.scrollToBottom();
+    } catch (error) {
+      this.removeLoadingMessage(loadingMessageId);
+      console.error('百度翻译失败:', error);
+      const errorMessage = error.message || '翻译失败';
+      this.showToast(errorMessage);
+    }
+  }
+
+  // 处理文本->文本请求
   async _processTextRequest(request) {
     this.startTime = request.timestamp;
     const loadingMessageId = this.addLoadingMessage(request.userMessageElement);
@@ -1104,8 +1142,9 @@ class Sidebar {
     return messageDiv; // 返回消息元素引用
   }
 
-  addImageToChat(imageUrl, role = 'user', shouldSave = true) {
+  addImageToChat(imageUrl, role = 'user', action = '', shouldSave = true) {
     const timestamp = Date.now();
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
     messageDiv.dataset.timestamp = timestamp;
@@ -1123,7 +1162,15 @@ class Sidebar {
     avatar.alt = role === 'user' ? 'You' : 'CopyOne';
     
     const name = document.createElement('span');
-    name.textContent = role === 'user' ? 'You' : 'CopyOne';
+    if (role === 'assistant') {
+      const functionNames = {
+        'img_translateOriginalCh': '原图译中',
+        'img_translateOriginalEn': '原图译英'
+      };
+      name.textContent = `CopyOne · ${functionNames[action] || ''}`;
+    } else {
+      name.textContent = 'You';
+    }
     
     headerLeft.appendChild(avatar);
     headerLeft.appendChild(name);
@@ -1133,16 +1180,25 @@ class Sidebar {
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'message-actions';
     
-    // 创建时间信息
+    // 添加时间和耗时信息
     if (role === 'user') {
+      // 用户消息显示时间
       const timeDiv = document.createElement('span');
       timeDiv.className = 'message-time';
       const date = new Date(timestamp);
       const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
       timeDiv.textContent = `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日 ${weekdays[date.getDay()]} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
       actionsDiv.appendChild(timeDiv);
+    } else if (role === 'assistant' && this.startTime) {
+      // AI回复显示耗时
+      const durationDiv = document.createElement('span');
+      durationDiv.className = 'message-duration';
+      const duration = ((Date.now() - this.startTime) / 1000).toFixed(2);
+      durationDiv.textContent = `耗时: ${duration}s`;
+      actionsDiv.appendChild(durationDiv);
     }
 
+    // 添加复制按钮
     const copyBtn = document.createElement('button');
     copyBtn.innerHTML = '<img src="icons/复制.png" alt="复制">';
     copyBtn.setAttribute('data-tooltip', '复制到剪贴板');
@@ -1150,11 +1206,14 @@ class Sidebar {
       try {
         const response = await fetch(imageUrl);
         const blob = await response.blob();
-        const item = new ClipboardItem({ 'image/png': blob });
-        await navigator.clipboard.write([item]);
-        this.showToast('图片已复制到剪贴板');
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob
+          })
+        ]);
+        this.showToast('已复制到剪贴板');
       } catch (error) {
-        console.error('Failed to copy image:', error);
+        console.error('复制失败:', error);
         this.showToast('复制失败');
       }
     };
@@ -1163,44 +1222,37 @@ class Sidebar {
     headerDiv.appendChild(actionsDiv);
     messageDiv.appendChild(headerDiv);
 
-    // 创建消息主体
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'message-body';
-
     // 创建图片容器
     const imageContainer = document.createElement('div');
-    imageContainer.className = 'message-content image-container';
-
-    // 创建图片元素
+    imageContainer.className = 'message-body';
+    
     const img = document.createElement('img');
     img.src = imageUrl;
-    img.style.cssText = `
-      width: 100%;
-      height: auto;
-      display: block;
-      cursor: pointer;
-    `;
-
-    // 添加点击图片放大预览的功能
+    img.alt = '图片';
+    img.className = 'chat-image';
     img.onclick = () => this.showImagePreview(imageUrl);
-
+    
     imageContainer.appendChild(img);
-    bodyDiv.appendChild(imageContainer);
-    messageDiv.appendChild(bodyDiv);
+    messageDiv.appendChild(imageContainer);
 
-    this.chatContainer.appendChild(messageDiv);
+    // 添加到聊天容器
+    const chatContainer = document.getElementById('chatContainer');
+    chatContainer.appendChild(messageDiv);
     this.scrollToBottom();
 
+    // 如果需要保存到历史记录
     if (shouldSave) {
       this.saveToHistory({
         type: 'image',
         data: imageUrl,
-        role,
-        timestamp
+        role: role,
+        action: action,
+        timestamp: timestamp,
+        duration: role === 'assistant' ? ((Date.now() - this.startTime) / 1000).toFixed(2) : undefined
       });
     }
 
-    return messageDiv; // 返回消息元素引用
+    return messageDiv;
   }
 
   async getClipboardText() {
@@ -1440,6 +1492,77 @@ class Sidebar {
         resolve(canvas.toDataURL());
       };
     });
+  }
+
+  async initBaiduTranslator() {
+    const settings = await config.getSettings();
+    if (settings.baiduClientId && settings.baiduClientSecret) {
+      this.baiduTranslator = new BaiduTranslateService(
+        settings.baiduClientId,
+        settings.baiduClientSecret
+      );
+    }
+    return this.baiduTranslator;
+  }
+
+  async handleBaiduTranslation(imageBlob, action) {
+    try {
+      // 初始化百度翻译器
+      if (!this.baiduTranslator) {
+        await this.initBaiduTranslator();
+      }
+
+      if (!this.baiduTranslator) {
+        this.showToast('请先在设置中配置百度翻译API');
+        return;
+      }
+
+      // 显示加载消息
+      const loadingMessage = this.addLoadingMessage();
+
+      // 将Blob转换为URL
+      const imageUrl = URL.createObjectURL(imageBlob);
+
+      // 确定翻译方向
+      const toLang = action === 'img_translateOriginalCh' ? 'zh' : 'en';
+      const fromLang = toLang === 'zh' ? 'en' : 'zh';
+
+      // 执行翻译
+      const result = await this.baiduTranslator.translateImage(imageUrl, fromLang, toLang);
+
+      // 清理URL
+      URL.revokeObjectURL(imageUrl);
+
+      // 移除加载消息
+      this.removeLoadingMessage(loadingMessage);
+
+      if (!result) {
+        this.showToast('翻译失败');
+        return;
+      }
+
+      // 添加原始图片到聊天
+      this.addImageToChat(imageUrl, 'user');
+
+      // 如果有翻译后的图片，显示翻译结果
+      if (result.pasteImg) {
+        const translatedImageUrl = `data:image/jpeg;base64,${result.pasteImg}`;
+        this.addImageToChat(translatedImageUrl, 'assistant', true, action);
+      }
+
+      // 保存到历史记录
+      this.saveToHistory({
+        type: 'image',
+        data: imageUrl,
+        result: result,
+        action: action,
+        timestamp: Date.now()
+      });
+
+    } catch (error) {
+      console.error('百度翻译失败:', error);
+      this.showToast('翻译失败');
+    }
   }
 }
 
