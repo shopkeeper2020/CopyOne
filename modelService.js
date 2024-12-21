@@ -220,6 +220,7 @@ class QwenService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Qwen image response:', data.choices[0].message.content);
       return data.choices[0].message.content;
 
     } catch (error) {
@@ -264,6 +265,7 @@ class QwenService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Qwen text response:', data.choices[0].message.content);
       return data.choices[0].message.content;
 
     } catch (error) {
@@ -325,6 +327,7 @@ class GroqService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Groq image response:', data.choices[0].message.content);
       return data.choices[0].message.content;
       
     } catch (error) {
@@ -372,6 +375,7 @@ class GroqService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Groq text response:', data.choices[0].message.content);
       return data.choices[0].message.content;
     } catch (error) {
       console.error('Error processing text with Groq:', error);
@@ -420,6 +424,7 @@ class GeminiService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Gemini image response:', data.candidates[0].content.parts[0].text);
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error('Error processing image with Gemini:', error);
@@ -452,6 +457,7 @@ class GeminiService extends BaseModelService {
       }
 
       const data = await response.json();
+      console.log('Gemini text response:', data.candidates[0].content.parts[0].text);
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error('Error processing text with Gemini:', error);

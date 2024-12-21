@@ -829,7 +829,6 @@ class Sidebar {
       const result = await modelService.processImage(request.content, request.action);
       this.removeLoadingMessage(loadingMessageId);
 
-      let processedResult = result;
       let translatedImageUrl = request.content;
 
       // 如果是原图译中或原图译英，处理 JSON 数组
@@ -853,7 +852,7 @@ class Sidebar {
         });
       } else {
         // 在用户消息后插入 AI 响应
-        const responseElement = this.createMessageElement(JSON.stringify(processedResult), 'assistant', request.action);
+        const responseElement = this.createMessageElement(result, 'assistant', request.action);
         request.userMessageElement.insertAdjacentElement('afterend', responseElement);
         
         // 保存 AI 响应到历史记录

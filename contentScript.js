@@ -44,7 +44,7 @@ function updateImagePreviewPosition(clientX, clientY) {
 
     // 检查是否超出下边界
     if (top + imagePreview.offsetHeight > innerHeight) {
-        top = clientY - imagePreview.offsetHeight - 10; // 显示在鼠标上方
+        top = clientY - imagePreview.offsetHeight - 30; // 显示在鼠标上方
     }
 
     // 如果仍然超出上边界，调整到顶部
@@ -73,6 +73,11 @@ document.addEventListener('mouseover', async (event) => {
         if (imageCache.has(originalSrc)) {
             const cachedImage = imageCache.get(originalSrc);
 
+            // 如果图片大小比显示区域还小，则不进行预览
+            if (cachedImage.width <= target.clientWidth && cachedImage.height <= target.clientHeight) {
+                return;
+            }
+
             originalWidth = cachedImage.width;
             originalHeight = cachedImage.height;
             imagePreview.src = cachedImage.src;
@@ -90,6 +95,11 @@ document.addEventListener('mouseover', async (event) => {
                 img.onload = () => {
                     originalWidth = img.width;
                     originalHeight = img.height;
+
+                    // 如果图片大小比显示区域还小，则不进行预览
+                    if (originalWidth <= target.clientWidth && originalHeight <= target.clientHeight) {
+                        return;
+                    }
 
                     // 检查是否超出边界
                     const { innerWidth, innerHeight } = window;
