@@ -2,6 +2,7 @@ import config from './config.js';
 import { ModelServiceFactory } from './modelService.js';
 import { marked } from './marked.js';
 import BaiduTranslateService from './modelServices/BaiduTranslateService.js';
+import ActionService from './services/ActionService.js';
 
 class Sidebar {
   constructor() {
@@ -27,6 +28,9 @@ class Sidebar {
     });
 
     this.baiduTranslator = null;
+
+    // 初始化服务
+    this.actionService = new ActionService(this);
   }
 
   init() {
@@ -133,42 +137,42 @@ class Sidebar {
       if (this.extractTextBtn) {
         this.extractTextBtn.addEventListener('click', () => {
           console.log('提取文本按钮被点击');
-          this.handleImageAction('extract');
+          this.actionService.handleImageAction('extract');
         });
       }
 
       if (this.translateImgChBtn) {
         this.translateImgChBtn.addEventListener('click', () => {
           console.log('图片译中按钮被点击');
-          this.handleImageAction('img_translateCh');
+          this.actionService.handleImageAction('img_translateCh');
         });
       }
 
       if (this.translateImgEnBtn) {
         this.translateImgEnBtn.addEventListener('click', () => {
           console.log('图片译英按钮被点击');
-          this.handleImageAction('img_translateEn');
+          this.actionService.handleImageAction('img_translateEn');
         });
       }
 
       if (this.customImgBtn) {
         this.customImgBtn.addEventListener('click', () => {
           console.log('自定义图片按钮被点击');
-          this.handleImageAction('img_custom');
+          this.actionService.handleImageAction('img_custom');
         });
       }
 
       if (this.translateOriginalImgChBtn) {
         this.translateOriginalImgChBtn.addEventListener('click', () => {
           console.log('原图译中按钮被点击');
-          this.handleImageAction('img_translateOriginalCh');
+          this.actionService.handleImageAction('img_translateOriginalCh');
         });
       }
 
       if (this.translateOriginalImgEnBtn) {
         this.translateOriginalImgEnBtn.addEventListener('click', () => {
           console.log('原图译英按钮被点击');
-          this.handleImageAction('img_translateOriginalEn');
+          this.actionService.handleImageAction('img_translateOriginalEn');
         });
       }
 
@@ -176,21 +180,21 @@ class Sidebar {
       if (this.translateTextChBtn) {
         this.translateTextChBtn.addEventListener('click', () => {
           console.log('文本译中按钮被点击');
-          this.handleTextAction('text_translateCh');
+          this.actionService.handleTextAction('text_translateCh');
         });
       }
 
       if (this.translateTextEnBtn) {
         this.translateTextEnBtn.addEventListener('click', () => {
           console.log('文本译英按钮被点击');
-          this.handleTextAction('text_translateEn');
+          this.actionService.handleTextAction('text_translateEn');
         });
       }
 
       if (this.customTextBtn) {
         this.customTextBtn.addEventListener('click', () => {
           console.log('自定义文本按钮被点击');
-          this.handleTextAction('text_custom');
+          this.actionService.handleTextAction('text_custom');
         });
       }
 
@@ -198,7 +202,8 @@ class Sidebar {
       if (this.submitCustomPrompt) {
         this.submitCustomPrompt.addEventListener('click', () => {
           console.log('提交自定义提示词按钮被点击');
-          this.saveCustomPrompt();
+          const prompt = this.customPromptInput.value.trim();
+          this.actionService.handleCustomPrompt(this.currentAction, prompt);
         });
       }
 
@@ -423,7 +428,7 @@ class Sidebar {
     try {
       const { history = [] } = await chrome.storage.local.get('history');
       
-      // 确保时间戳是数字类型
+      // 确保时间戳���数字类型
       const timestampNum = parseInt(timestamp);
       
       // 过滤掉要删除的消息
@@ -968,7 +973,7 @@ class Sidebar {
     this.scrollToBottom();
   }
 
-  // 修改加载消息的添加方法
+  // 修改加载消息添加方法
   addLoadingMessage(afterElement) {
     const messageId = Date.now();
     const messageDiv = document.createElement('div');
@@ -1222,17 +1227,31 @@ class Sidebar {
     headerDiv.appendChild(actionsDiv);
     messageDiv.appendChild(headerDiv);
 
-    // 创建图片容器
+    // 修改图片容器的创建方式
     const imageContainer = document.createElement('div');
     imageContainer.className = 'message-body';
+    
+    const imgWrapper = document.createElement('div');
+    imgWrapper.className = 'image-container';
+    imgWrapper.style.cssText = `
+      width: 60%;
+      max-width: 300px;
+      margin: 0;
+    `;
     
     const img = document.createElement('img');
     img.src = imageUrl;
     img.alt = '图片';
     img.className = 'chat-image';
+    img.style.cssText = `
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    `;
     img.onclick = () => this.showImagePreview(imageUrl);
     
-    imageContainer.appendChild(img);
+    imgWrapper.appendChild(img);
+    imageContainer.appendChild(imgWrapper);
     messageDiv.appendChild(imageContainer);
 
     // 添加到聊天容器
@@ -1414,7 +1433,7 @@ class Sidebar {
 
   // 添加一个辅助方法来检查剪贴板权限
   async checkClipboardPermission() {
-    console.log('检查剪贴板权限...');
+    console.log('检查贴板权限...');
     try {
       await navigator.clipboard.read();
       console.log('剪贴板权限已获取');
@@ -1455,44 +1474,6 @@ class Sidebar {
     }
   }
 
-  // 添加替换图片中文本的方法
-  async replaceTextInImage(ctx, originalText, translatedText, positions) {
-    // 这里实现替换图片中文本的逻辑
-    // 例如，使用 Canvas API 或其他图像处理库
-    console.log(`替换图片中的文本: ${originalText} -> ${translatedText}`);
-    positions.forEach(pos => {
-      ctx.clearRect(pos.left, pos.top, pos.width, pos.height);
-      ctx.fillText(translatedText, pos.left, pos.top + pos.height);
-    });
-  }
-
-  // 获取替换了翻译结果的图片 URL
-  async getTranslatedImageUrl(imageUrl, translations) {
-    console.log('获取替换了翻译结果的图片 URL');
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    let img = new Image();
-    img.src = imageUrl;
-
-    return new Promise((resolve) => {
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-
-        // 遍历翻译结果，替换图片中的文本
-        translations.forEach(item => {
-          const [left, top, right, bottom] = item.box_2d;
-          const width = right - left;
-          const height = bottom - top;
-          ctx.clearRect(left, top, width, height);
-          ctx.fillText(item.label, left, top + height);
-        });
-
-        resolve(canvas.toDataURL());
-      };
-    });
-  }
 
   async initBaiduTranslator() {
     const settings = await config.getSettings();
@@ -1566,9 +1547,60 @@ class Sidebar {
   }
 }
 
+// 添加消息监听器
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'simulate_button_click') {
+    // 获取当前 Sidebar 实例
+    const sidebar = window.sidebar;  // 使用已存在的实例
+    if (!sidebar) {
+      sendResponse({ error: 'Sidebar not initialized', success: false });
+      return true;
+    }
+    
+    // 模拟按钮点击
+    handleButtonClick(message, sendResponse, sidebar);
+    return true; // 保持消息通道开放
+  }
+});
+
+// 处理按钮点击
+async function handleButtonClick(message, sendResponse, sidebar) {
+  try {
+    debug('开始处理按钮点击，消息:', message);
+    
+    // 直接使用服务处理图片
+    const result = await sidebar.actionService.handleImageAction(
+      message.action,
+      message.imageUrl,
+      true  // 添加一个参数表示需要等待结果
+    );
+
+    if (!result || !result.translatedImageUrl) {
+      throw new Error('翻译失败: 未获取到翻译结果');
+    }
+
+    debug('获取到翻译结果:', result.translatedImageUrl.substring(0, 100) + '...');
+    
+    // 直接返回翻译结果
+    sendResponse({
+      success: true,
+      translatedImageUrl: result.translatedImageUrl
+    });
+
+  } catch (error) {
+    console.error('Button click simulation failed:', error);
+    sendResponse({ error: error.message, success: false });
+  }
+}
+
+// 添加调试函数
+function debug(...args) {
+  console.log('[Sidebar]', ...args);
+}
+
 // 初始化
 console.log('准备初始化 Sidebar...');
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM 加载完成，开始创建 Sidebar 实例');
-  new Sidebar();
+  window.sidebar = new Sidebar();  // 将实例保存到 window 对象上
 });

@@ -287,17 +287,29 @@ body {
 }
 
 .image-container {
-  max-width: 100%;
-  width: 100%;
+  max-width: 300px;
+  width: 60%;
   border-radius: 8px;
   background: transparent;
   cursor: zoom-in;
-  margin-left: 0;
+  margin: 0;
   box-sizing: border-box;
-  max-height: 400px;
-  overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  overflow: hidden;
+}
+
+.chat-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+/* 确保消息体内的图片容器样式正确 */
+.message-body .image-container {
+  margin: 0;
+  width: 60%;
+  max-width: 300px;
 }
 
 .image-container::-webkit-scrollbar {
@@ -1016,7 +1028,7 @@ body {
 .message-header-left span {
   font-size: 14px;
   color: #666;
-  font-weight: bold;  /* 加粗用户名和系���名 */
+  font-weight: bold;  /* 加粗用户名和系名 */
 }
 
 /* 默认的消息背景色（无背景色设置时） */

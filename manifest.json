@@ -4,12 +4,13 @@
   "version": "1.0.3",
   "description": "A simple sidebar extension.",
   "permissions": [
-    "activeTab",
     "storage",
     "clipboardRead",
     "clipboardWrite",
     "sidePanel",
-    "tabs"
+    "tabs",
+    "scripting",
+    "activeTab"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -51,12 +52,15 @@
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "homepage_url": "https://github.com/shopkeeper2020/CopyOne",
-  "privacy_policy": "https://github.com/shopkeeper2020/CopyOne",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["contentScript.js"],
       "run_at": "document_end"
     }
-  ]
+  ],
+  "web_accessible_resources": [{
+    "resources": ["modelServices/BaiduTranslateService.js"],
+    "matches": ["<all_urls>"]
+  }]
 }

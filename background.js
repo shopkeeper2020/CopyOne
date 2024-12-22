@@ -30,3 +30,26 @@ chrome.commands.onCommand.addListener(async (command) => {
     }
   }
 });
+
+// 处理来自 content script 的消息
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'debug') {
+    console.log(`[Content Script Debug] ${message.message}`);
+  } else if (message.type === 'translate_image') {
+    // 获取当前标签页的 sidePanel
+    chrome.sidePanel.getOptions({ tabId: sender.tab.id }).then(options => {
+      // 向 sidePanel 发送消息，模拟点击按钮
+      chrome.runtime.sendMessage({
+        type: 'simulate_button_click',
+        action: message.action,
+        imageUrl: message.imageUrl
+      }).then(response => {
+        sendResponse(response);
+      }).catch(error => {
+        console.error('Translation failed:', error);
+        sendResponse({ error: error.message });
+      });
+    });
+    return true; // 保持消息通道开放
+  }
+});
