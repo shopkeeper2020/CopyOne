@@ -12,9 +12,6 @@
     "scripting",
     "activeTab"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
   "action": {
     "default_icon": {
       "16": "icons/图标629x629.png",
