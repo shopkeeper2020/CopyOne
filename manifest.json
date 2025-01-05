@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CopyOne",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A simple sidebar extension.",
   "permissions": [
     "storage",
